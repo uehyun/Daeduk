@@ -9,32 +9,32 @@
 </head>
 <body>
 	<h3>Result</h3>
-	<table border='1'>
+	<table>
 		<tr>
-			<td>유저ID</td>
-			<td>${member.userId }</td>
+			<td>개발자여부</td>
+			<td>${member.developer }</td>
 		</tr>
 		<tr>
-			<td>이름</td>
-			<td>${member.userName }</td>
+			<td>외국인여부</td>
+			<td>${member.foreigner }</td>
 		</tr>
 		<tr>
-			<td>패스워드</td>
-			<td>${member.password }</td>
+			<td>취미(hobby)</td>
+			<td>${member.hobby }</td>
 		</tr>
 		<tr>
-			<td>E-Mail</td>
-			<td>${member.email }</td>
+			<td>취미(hobbyArray)</td>
+			<td>
+				<c:forEach items="${member.hobbyArray }" var="hobby">
+					${hobby }<br/>
+				</c:forEach>
+			</td>
 		</tr>
 		<tr>
-			<td>소개</td>
-			<td>${member.introduction }</td>
-		</tr>
-		<tr>
-			<td>취미</td>
+			<td>취미(hobbyList)</td>
 			<td>
 				<c:forEach items="${member.hobbyList }" var="hobby">
-					<c:out value="${hobby }"/><br/>
+					${hobby }<br/>
 				</c:forEach>
 			</td>
 		</tr>
