@@ -13,7 +13,7 @@ import lombok.Data;
 public class Card {
 	@NotBlank
 	private String no;
-	@Future
+	@Future(message = "날짜를 다시 입력해주세요.")
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private Date validMonth;
 }

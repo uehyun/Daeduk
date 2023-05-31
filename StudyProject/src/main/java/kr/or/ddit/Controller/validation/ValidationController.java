@@ -11,6 +11,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import kr.or.ddit.vo.Address;
+import kr.or.ddit.vo.Card;
 import kr.or.ddit.vo.Member;
 import lombok.extern.slf4j.Slf4j;
 
@@ -175,6 +177,34 @@ public class ValidationController {
 		log.info("registerValidationForm03() 실행...!");
 		model.addAttribute("member", new Member());
 		return "validation/registerValidationForm03";
+	}
+	
+	@RequestMapping(value = "/result3", method = RequestMethod.POST)
+	public String registerValidationResult3(@Validated Member member, BindingResult result) {
+		log.info("registerValidationResult3() 실행...!");
+		
+		if(result.hasErrors()) {
+			return "validation/registerValidationForm03";
+		}
+		log.info("userId : " + member.getUserId());
+		log.info("dateOfBirth : " + member.getDateOfBirth());
+		
+		Address address = member.getAddress();
+		if(address != null) {
+			log.info("postCode : " + address.getPostCode());
+			log.info("location : " + address.getLocation());
+		}
+		
+		List<Card> cardList = member.getCardList();
+		
+		if(cardList != null) {
+			for(int i=0; i<cardList.size(); i++) {
+				Card card = cardList.get(i);
+				log.info("no : " + card.getNo());
+				log.info("validation : " + card.getValidMonth());
+			}
+		}
+		return "validation/success";
 	}
 	
 }
