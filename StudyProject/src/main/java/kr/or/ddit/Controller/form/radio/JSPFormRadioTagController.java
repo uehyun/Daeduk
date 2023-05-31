@@ -63,4 +63,29 @@ public class JSPFormRadioTagController {
 		model.addAttribute("gender", member.getGender());
 		return "form/radio/result";
 	}
+	
+	// 단일 radio 버튼
+	
+	/*
+		8장 스프링 폼 태그
+		
+		10. 라디오 버튼 요소
+		- HTML 라디오 버튼을 출력하려면 <form:radiobutton> 요소를 사용한다.
+	*/
+	
+	@RequestMapping(value = "/registerFormRadio01", method = RequestMethod.GET)
+	public String registerFormRadio01(Model model) {
+		log.info("registerFormRadio01() 실행...!");
+		model.addAttribute("member", new Member());
+		return "form/radio/registerFormRadio01";
+	}
+	
+	@RequestMapping(value = "/registerFormRadio02", method = RequestMethod.GET)
+	public String registerFormRadio02(Model model) {
+		log.info("registerFormRadio02() 실행..!");
+		Member member = new Member();
+		member.setGender("female");
+		model.addAttribute("member", member);
+		return "form/radio/registerFormRadio01";
+	}
 }
