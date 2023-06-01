@@ -11,6 +11,12 @@
 <body>
 	<h2>List</h2>
 	<a href="/crud/board/register">등록</a>
+	
+	<form action="/crud/board/search" method="post">
+		<input type="text" name="title" value="${board.title }"/>
+		<input type="submit" value="검색"/>
+	</form>
+	
 	<table border="1">
 		<tr>
 			<td align="center" width="80">번호</td>
@@ -21,7 +27,7 @@
 		<c:choose>
 			<c:when test="${empty boardList }">
 				<tr>
-					<td colspan="4">조회하실 게시물이 존재하지 않습니다.</td>
+					<td align="center" colspan="4">조회하실 게시물이 존재하지 않습니다.</td>
 				</tr>
 			</c:when>
 			<c:otherwise>

@@ -14,4 +14,8 @@ public interface IBoardService {
 
 	public void update(Board board);
 
+	public void delete(int boardNo);
+
+	public List<Board> search(Board board);
+
 }

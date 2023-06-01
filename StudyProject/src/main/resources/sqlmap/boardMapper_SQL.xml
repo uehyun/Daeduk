@@ -36,4 +36,19 @@
 			content = #{content}
 		where board_no = #{boardNo}
 	</update>
+	
+	<delete id="delete" parameterType="int">
+		delete from board where board_no = #{boardNo}
+	</delete>
+	
+	<select id="search" parameterType="board" resultType="board">
+		select
+			board_no, title, content, writer, reg_date
+		from board
+		where 1=1
+		<if test="title != null and title != ''">
+			and title like '%'||#{title}||'%'
+		</if>
+		order by board_no
+	</select>
 </mapper>

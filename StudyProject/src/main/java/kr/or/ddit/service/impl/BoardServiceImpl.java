@@ -36,4 +36,14 @@ public class BoardServiceImpl implements IBoardService {
 		mapper.update(board);
 	}
 
+	@Override
+	public void delete(int boardNo) {
+		mapper.delete(boardNo);
+	}
+
+	@Override
+	public List<Board> search(Board board) {
+		return mapper.search(board);
+	}
+
 }

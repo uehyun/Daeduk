@@ -68,5 +68,26 @@ public class CrudBoardController {
 		model.addAttribute("msg", "수정이 완료되었습니다.");
 		return "crud/success";
 	}
+	
+	@RequestMapping(value = "/remove", method = RequestMethod.POST)
+	public String crudRemove(int boardNo, Model model) {
+		log.info("crudDelete() 실행...!");
+		service.delete(boardNo);
+		model.addAttribute("msg", "삭제가 완료되었습니다.");
+		return "crud/success";
+	}
+	
+	@RequestMapping(value = "/search", method = RequestMethod.POST)
+	public String crudSearch(String title, Model model) {
+		log.info("crudSearch() 실행...!");
+		Board board = new Board();
+		board.setTitle(title);
+		
+		List<Board> boardList = service.search(board);
+		model.addAttribute("board", board);
+		model.addAttribute("boardList", boardList);
+		return "crud/list";
+		
+	}
 
 }
