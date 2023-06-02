@@ -66,4 +66,10 @@ public class CrudMemberController {
 		return "crud/member/success";
 	}
 
+	@RequestMapping(value = "/delete", method = RequestMethod.POST)
+	public String crudMemberRemove(int userNo, Model model) {
+		service.remove(userNo);
+		model.addAttribute("msg", "삭제가 완료되었습니다");
+		return "crud/member/success";
+	}
 }

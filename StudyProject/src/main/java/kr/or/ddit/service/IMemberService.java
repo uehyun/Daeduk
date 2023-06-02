@@ -14,4 +14,6 @@ public interface IMemberService {
 
 	public void modify(MemberVO member);
 
+	public void remove(int userNo);
+
 }

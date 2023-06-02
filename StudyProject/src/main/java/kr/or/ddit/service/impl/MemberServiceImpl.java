@@ -61,4 +61,10 @@ public class MemberServiceImpl implements IMemberService {
 		}
 	}
 
+	@Override
+	public void remove(int userNo) {
+		mapper.deleteAuth(userNo);
+		mapper.delete(userNo);
+	}
+
 }

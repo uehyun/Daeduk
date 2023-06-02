@@ -19,4 +19,6 @@ public interface MemberMapper {
 
 	public void deleteAuth(int userNo);
 
+	public void delete(int userNo);
+
 }
