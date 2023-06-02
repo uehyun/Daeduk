@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://tiles.apache.org/tags-tiles" prefix="tiles"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,7 +12,15 @@
 <link rel="stylesheet" href="${pageContext.request.contextPath }/resources/plugins/fontawesome-free/css/all.min.css">
 <link rel="stylesheet" href="${pageContext.request.contextPath }/resources/dist/css/adminlte.min.css">
 <script src="${pageContext.request.contextPath }/resources/plugins/jquery/jquery.min.js"></script>
+<script src="${pageContext.request.contextPath }/resources/ckeditor/ckeditor.js"></script>
 </head>
+<c:if test="${not empty message }">
+<script type="text/javascript">
+	alert("${message}");
+	<c:remove var="message" scope="request"/>
+	<c:remove var="message" scope="session"/>
+</script>
+</c:if>
 <body class="hold-transition sidebar-mini">
 	<div class="wrapper">
 		<tiles:insertAttribute name="header"/>
