@@ -52,5 +52,16 @@
 		from member a left outer join member_auth b on(a.user_no = b.user_no)
 		where a.user_no = #{userNo}	
 	</select>
+	
+	<update id="update" parameterType="memberVO">
+		update member
+		set
+			user_name = #{userName}
+		where user_no = #{userNo}
+	</update>
 
+	<delete id="deleteAuth" parameterType="int">
+		delete from member_auth
+		where user_no = #{userNo}
+	</delete>
 </mapper>

@@ -31,10 +31,36 @@
 			<td>${member.authList[2].auth }</td>
 		</tr>
 	</table>
-	<a href="/crud/member/modify?userNo=${member.userNo }">
-		Modify
-	</a>
+	<form action="/crud/member/modify" method="get" id="modForm">
+		<input type="hidden" value="${member.userNo }" name="userNo"/>
+	</form>
+	<button type="button" id="btnModify">Modify</button>
 	<button type="button" id="btnRemove">Remove</button>
 	<button type="button" id="btnList">List</button>
 </body>
+<script type="text/javascript">
+$(function(){
+	var btnModify = $("#btnModify");
+	var btnRemove = $("#btnRemove");
+	var btnList = $("#btnList");
+	var modForm = $("#modForm");
+	
+	btnModify.on("click", function(){
+		modForm.submit();
+	});
+	
+	btnRemove.on("click",function(){
+		if(confirm("정말로 삭제하시겠습니까?")) {
+			modForm.attr("action", "/crud/member/delete");
+			modForm.attr("method", "post");
+			modForm.submit();
+		}
+	});
+	
+	btnList.on("click",function(){
+		location.href="/crud/member/list";
+	});
+});
+
+</script>
 </html>
