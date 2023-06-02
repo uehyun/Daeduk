@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<script>
+function fn_add_act() {
+	document.frm.submit();
+}
+</script>
+<body>
+<form action="mem_add_act" name="frm" method="post">
+	<p>사번 : <input type="text" name="m_id"></p>
+	<p>이름 : <input type="text" name="m_name"></p>
+	<p>성별 : <input type="text" name="tel"></p>
+	<p>주소 : <input type="text" name="address"></p>
+	<input type="button" value="등록" onclick="fn_add_act()">
+	<input type="button" value="목록" onclick="history.back()">
+</form>
+</body>
+</html>

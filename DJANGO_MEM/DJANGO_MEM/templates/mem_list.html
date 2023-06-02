@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<script type="text/javascript">
+function addMem() {
+	location.href="mem_add"
+}
+
+</script>
+<style>
+table th {
+	text-align: center;
+}
+table td {
+	text-align: center;
+}
+</style>
+<body>
+MEM_List<br/>
+<table border='1'>
+<thead>
+<tr><th>아이디</th><th>이름</th><th>전화번호</th><th>주소</th></tr>
+</thead>
+<tbody>
+ {% for i in list %}
+<tr>
+	<td><a href="mem_detail?m_id={{i.m_id}}">{{i.m_id}}</a></td>
+	<td>{{i.m_name}}</td>
+	<td>{{i.tel}}</td>
+	<td>{{i.address}}</td>
+</tr>
+ {% endfor %}
+</tbody>
+</table>
+<br/>
+<input type="button" value="추가" onclick="addMem()">
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webgl - geometry - cube</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link type="text/css" rel="stylesheet" href="main.css">
+	</head>
+	<body>
+
+		<!-- Import maps polyfill -->
+		<!-- Remove this when import maps will be widely supported -->
+		<script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+
+		<script type="importmap">
+			{
+				"imports": {
+					"three": "../build/three.module.js",
+					"three/addons/": "./jsm/"
+				}
+			}
+		</script>
+
+		<script type="module">
+
+			import * as THREE from 'three';
+
+			var xycs = [
+				{'x':-100, 'z' : 100, 'c':0xFF0000},
+				{'x':0,    'z' : 100, 'c':0xFFA500},
+				{'x':100,  'z' : 100, 'c':0xFFFF00},
+				
+				{'x':-100, 'z' : 0,   'c':0x3FFF00},
+				{'x':0,    'z' : 0,   'c':0x00A9FF},
+				{'x':100,  'z' : 0,   'c':0x3300FF},
+				
+				{'x':-100, 'z' :-100, 'c':0x8700FF},
+				{'x':0,    'z' :-100, 'c':0xFFFFFF},
+				{'x':100,  'z' :-100, 'c':0x919191}
+			];
+			
+			var ufos = [];
+			
+			let camera, scene, renderer;
+
+			init();
+			animate();
+
+			function init() {
+
+				camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 1, 1000 );
+				camera.position.z = 400;
+				camera.position.y = 100;
+
+				scene = new THREE.Scene();
+				
+				for(var i=0; i<xycs.length; i++) {
+					var geometry = new THREE.CylinderGeometry( 15, 40, 10, 20 );
+					var material = new THREE.MeshBasicMaterial( { color: xycs[i].c, wireframe : true } );
+					var mesh = new THREE.Mesh( geometry, material );
+					mesh.position.x = xycs[i].x;
+					mesh.position.z = xycs[i].z;
+					scene.add(mesh);
+					ufos.push(mesh);
+				}
+
+				renderer = new THREE.WebGLRenderer( { antialias: true } );
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				document.body.appendChild( renderer.domElement );
+
+				//
+
+				window.addEventListener( 'resize', onWindowResize );
+
+			}
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+			var cnt = 0;
+			function animate() {
+				cnt++;
+				for(var i=0; i<ufos.length; i++) {
+					if(cnt>100) {
+						ufos[0].rotation.y += 0.1;
+						ufos[0].position.y += 0.5;
+					}
+					if(cnt>200) {
+						ufos[1].rotation.y += 0.1;
+						ufos[1].position.y += 0.5;
+					} 
+					if(cnt>300) {
+						ufos[2].rotation.y += 0.1;
+						ufos[2].position.y += 0.5;
+					} 
+					if(cnt>400) {
+						ufos[3].rotation.y += 0.1;
+						ufos[3].position.y += 0.5;
+					} 
+					if(cnt>500) {
+						ufos[4].rotation.y += 0.1;
+						ufos[4].position.y += 0.5;
+					} 
+					if(cnt>600) {
+						ufos[5].rotation.y += 0.1;
+						ufos[5].position.y += 0.5;
+					} 
+					if(cnt>700) {
+						ufos[6].rotation.y += 0.1;
+						ufos[6].position.y += 0.5;
+					} 
+					if(cnt>800) {
+						ufos[7].rotation.y += 0.1;
+						ufos[7].position.y += 0.5;
+					} 
+					if(cnt>900) {
+						ufos[8].rotation.y += 0.1;
+						ufos[8].position.y += 0.5;
+					}
+				}
+
+				console.log("animate")
+
+				requestAnimationFrame( animate );
+
+				renderer.render( scene, camera );
+
+			}
+
+		</script>
+
+	</body>
+</html>

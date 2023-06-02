@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<script type="text/javascript">
+window.onload = function() {
+	var cnt = "{{cnt}}";
+	if(cnt == "1") {
+		alert("등록 성공하였습니다.")
+		location.href="mem_list"
+	} else {
+		alert("등록 실패하였습니다.")
+		history.back();
+	}
+}
+</script>
+
+</body>
+</html>

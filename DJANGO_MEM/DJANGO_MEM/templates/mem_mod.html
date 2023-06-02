@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<script>
+function fn_mod_act() {
+	document.frm.submit();
+}
+</script>
+<body>
+EMP_MOD
+<form action="mem_mod_act" name="frm" method="post">
+<table border='1'>
+	<tr>
+		<td>아이디</td>
+		<td>
+			<input type="text" name="m_id" value="{{vo.m_id}}" readonly="readonly">
+		</td>
+	</tr>
+	<tr>
+		<td>이름</td>
+		<td>
+			<input type="text" name="m_name" value="{{vo.m_name}}">
+		</td>
+	</tr>
+	<tr>
+		<td>전화번호</td>
+		<td>
+			<input type="text" name="tel" value="{{vo.tel}}">
+		</td>
+	</tr>
+	<tr>
+		<td>주소</td>
+		<td>
+			<input type="text" name="address" value="{{vo.address}}">
+		</td>
+	</tr>
+	<tr>
+		<td colspan="2">
+			<input type="button" value="실행" onclick="fn_mod_act()">
+		</td>
+	</tr>
+</table>
+</form>
+</body>
+</html>
