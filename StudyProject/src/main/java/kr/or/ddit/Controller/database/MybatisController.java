@@ -158,7 +158,7 @@ public class MybatisController {
 						> 위 select 쿼리를 사용 시, currval를 사용하는데 있어서 사용 불가에 대한 에러가 발생할 수 있다.
 						  currval를 사용할 때는 select seq_board.nextval from dual로 먼저 최초로 실행 후,
 						  select seq_board.currval from dual로 사용하면 에러가 없음
-						   같은 세선내에서의 실행이 이뤄지지 않았기 때문에 currval로 데이터를 가져오ㅜ는데 에러가 발생한다.
+						   같은 세선내에서의 실행이 이뤄지지 않았기 때문에 currval로 데이터를 가져오는데 에러가 발생한다.
 						   
 						# 그럼에도 나는 가져와야겠다 싶으면
 						> select last_number from user_sequences where sequence_name = '시퀀스명';
