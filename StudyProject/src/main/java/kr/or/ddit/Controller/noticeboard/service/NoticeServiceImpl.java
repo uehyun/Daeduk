@@ -1,20 +1,29 @@
 package kr.or.ddit.Controller.noticeboard.service;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import kr.or.ddit.ServiceResult;
 import kr.or.ddit.Controller.noticeboard.web.TelegramSendController;
+import kr.or.ddit.mapper.LoginMapper;
 import kr.or.ddit.mapper.NoticeMapper;
+import kr.or.ddit.vo.DDITMemberVO;
 import kr.or.ddit.vo.NoticeVO;
 import kr.or.ddit.vo.PaginationInfoVO;
 
 @Service
 public class NoticeServiceImpl implements INoticeService {
+	
+	@Inject
+	private LoginMapper loginMapper;
 	
 	@Inject
 	private NoticeMapper noticeMapper;
@@ -77,6 +86,59 @@ public class NoticeServiceImpl implements INoticeService {
 	@Override
 	public List<NoticeVO> selectNoticeList(PaginationInfoVO<NoticeVO> pagingVO) {
 		return noticeMapper.selectNoticeList(pagingVO);
+	}
+
+	@Override
+	public ServiceResult idCheck(String memId) {
+		ServiceResult result = null;
+		DDITMemberVO member = loginMapper.idCheck(memId);
+		if(member != null) {
+			result = ServiceResult.EXIST;
+		} else {
+			result = ServiceResult.NOTEXIST;
+		}
+		return result;
+	}
+
+	@Override
+	public ServiceResult signup(HttpServletRequest req, DDITMemberVO memberVO) {
+		ServiceResult result = null;
+		
+		// 프로필 이미지 파일을 업로드할 경로 설정
+		String uploadPath = req.getServletContext().getRealPath("/resources/profile");
+		File file = new File(uploadPath);
+		if(!file.exists()) {
+			file.mkdirs();
+		}
+		
+		String proFileImg = "";
+		MultipartFile proFileImgFile = memberVO.getImgFile();
+		if(proFileImgFile.getOriginalFilename() != null && !proFileImgFile.getOriginalFilename().equals("")) {
+			String fileName = UUID.randomUUID().toString();
+			fileName += "_" + proFileImgFile.getOriginalFilename();
+			uploadPath += "/" + fileName;
+			try {
+				proFileImgFile.transferTo(new File(uploadPath));	// 파일 복사
+			} catch (IllegalStateException | IOException e) {
+				e.printStackTrace();
+			}
+			proFileImg = "/resources/profile/" + fileName;
+		}
+		
+		memberVO.setMemProfileImg(proFileImg);
+		
+		int status = loginMapper.signup(memberVO);
+		if(status > 0) {
+			result = ServiceResult.OK;
+		} else {
+			result = ServiceResult.FAILED;
+		}
+		return result;
+	}
+
+	@Override
+	public DDITMemberVO loginCheck(DDITMemberVO memberVO) {
+		return loginMapper.loginCheck(memberVO);
 	}
 
 }
