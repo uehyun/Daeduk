@@ -7,6 +7,8 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -17,9 +19,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import kr.or.ddit.ServiceResult;
 import kr.or.ddit.Controller.noticeboard.service.INoticeService;
+import kr.or.ddit.vo.DDITMemberVO;
 import kr.or.ddit.vo.NoticeVO;
 import lombok.extern.slf4j.Slf4j;
 
@@ -40,7 +44,11 @@ public class NoticeInsertController {
 	}
 	
 	@RequestMapping(value = "/insert.do", method = RequestMethod.POST)
-	public String noticeInsert(NoticeVO noticeVO, Model model) {
+	public String noticeInsert(
+			HttpServletRequest req,
+			RedirectAttributes ra,
+			NoticeVO noticeVO, 
+			Model model) {
 		String goPage = "";
 		Map<String, String> errors = new HashMap<String, String>();
 		if(StringUtils.isBlank(noticeVO.getBoTitle())) {
@@ -55,13 +63,20 @@ public class NoticeInsertController {
 			model.addAttribute("noticeVO", noticeVO);
 			goPage = "notice/form";
 		} else {
-			noticeVO.setBoWriter("a001");	// 임시로 넣어둔다.
-			ServiceResult result = noticeService.insertNotice(noticeVO);
-			if(result.equals(ServiceResult.OK)) {
-				goPage = "redirect:/notice/detail.do?boNo=" + noticeVO.getBoNo();
+			HttpSession session = req.getSession();
+			DDITMemberVO memberVO = (DDITMemberVO) session.getAttribute("SessionInfo");
+			if(memberVO != null) {
+				noticeVO.setBoWriter(memberVO.getMemId());	// 로그인한 사용자 아이디로 작성자 셋팅
+				ServiceResult result = noticeService.insertNotice(req, noticeVO);
+				if(result.equals(ServiceResult.OK)) {
+					goPage = "redirect:/notice/detail.do?boNo=" + noticeVO.getBoNo();
+				} else {
+					model.addAttribute("message", "서버에러, 다시 시도해주세요!");
+					goPage = "notice/form";
+				}
 			} else {
-				model.addAttribute("message", "서버에러, 다시 시도해주세요!");
-				goPage = "notice/form";
+				ra.addFlashAttribute("message", "로그인 후에 사용 가능합니다.");
+				return goPage = "redirect:/notice/login.do";
 			}
 		}
 		return goPage;
@@ -83,37 +98,37 @@ public class NoticeInsertController {
 		@ResponseBody : json을 text로 return 할 때 사용
 	 */
 	
-	@ResponseBody
-	@PostMapping("/generalFormPost")
-	public String generalFormPost(NoticeVO notice) {
-		log.info("noticeVO : " + notice);
-		// 파일을 업로드할 대상
-		MultipartFile[] boFile = notice.getBoFile();
-		
-		for(MultipartFile multipartFile : boFile) {
-			log.info("----------------------------------");
-			log.info("원본이름 : " + multipartFile.getOriginalFilename());
-			log.info("파일 크기 : " + multipartFile.getSize());
-			log.info("파일 타입 : " + multipartFile.getContentType());
-			
-			// File 객체 복사 설계(복사할 대상 경로, 파일명)
-			File saveFile = new File(resourcePath, multipartFile.getOriginalFilename());
-			
-			// 연/월/일 폴더 생성
-			
-			// UUID처리(파일명 중복 방지)
-			
-			// 파일 복사 실행(파일원본.transferTo(설계))
-			try {
-				multipartFile.transferTo(saveFile);
-				return "Success";
-			} catch (IllegalStateException | IOException e) {
-				log.error(e.getMessage());
-				return "Failed";
-			}
-		}
-		this.noticeService.insertNotice(notice);
-		
-		return "Success";
-	}
+//	@ResponseBody
+//	@PostMapping("/generalFormPost")
+//	public String generalFormPost(NoticeVO notice) {
+//		log.info("noticeVO : " + notice);
+//		// 파일을 업로드할 대상
+//		MultipartFile[] boFile = notice.getBoFile();
+//		
+//		for(MultipartFile multipartFile : boFile) {
+//			log.info("----------------------------------");
+//			log.info("원본이름 : " + multipartFile.getOriginalFilename());
+//			log.info("파일 크기 : " + multipartFile.getSize());
+//			log.info("파일 타입 : " + multipartFile.getContentType());
+//			
+//			// File 객체 복사 설계(복사할 대상 경로, 파일명)
+//			File saveFile = new File(resourcePath, multipartFile.getOriginalFilename());
+//			
+//			// 연/월/일 폴더 생성
+//			
+//			// UUID처리(파일명 중복 방지)
+//			
+//			// 파일 복사 실행(파일원본.transferTo(설계))
+//			try {
+//				multipartFile.transferTo(saveFile);
+//				return "Success";
+//			} catch (IllegalStateException | IOException e) {
+//				log.error(e.getMessage());
+//				return "Failed";
+//			}
+//		}
+//		this.noticeService.insertNotice(notice);
+//		
+//		return "Success";
+//	}
 }

@@ -16,6 +16,7 @@ import kr.or.ddit.Controller.noticeboard.web.TelegramSendController;
 import kr.or.ddit.mapper.LoginMapper;
 import kr.or.ddit.mapper.NoticeMapper;
 import kr.or.ddit.vo.DDITMemberVO;
+import kr.or.ddit.vo.NoticeFileVO;
 import kr.or.ddit.vo.NoticeVO;
 import kr.or.ddit.vo.PaginationInfoVO;
 
@@ -31,10 +32,17 @@ public class NoticeServiceImpl implements INoticeService {
 	TelegramSendController tst = new TelegramSendController();
 
 	@Override
-	public ServiceResult insertNotice(NoticeVO noticeVO) {
+	public ServiceResult insertNotice(HttpServletRequest req, NoticeVO noticeVO) {
 		ServiceResult result = null;
 		int status = noticeMapper.insertNotice(noticeVO);
 		if(status>0) {
+			List<NoticeFileVO> noticeFileList = noticeVO.getNoticeFileList();
+			try {
+				noticeFileUpload(noticeFileList, noticeVO.getBoNo(), req);
+			} catch (IllegalStateException | IOException e1) {
+				e1.printStackTrace();
+			}
+			
 			// 성공 했다는 메세지를 텔레그램 BOT API를 이용하여 알림
 			try {
 				tst.sendGet("406호 배문기", noticeVO.getBoTitle());
@@ -55,10 +63,29 @@ public class NoticeServiceImpl implements INoticeService {
 	}
 
 	@Override
-	public ServiceResult updateNotice(NoticeVO noticeVO) {
+	public ServiceResult updateNotice(HttpServletRequest req, NoticeVO noticeVO) {
 		ServiceResult result = null;
 		int status = noticeMapper.updateNotice(noticeVO);
 		if(status>0) {
+			List<NoticeFileVO> noticeFileList = noticeVO.getNoticeFileList();
+			try {
+				// 1) 수정을 위해서 새로 추가된 파일 데이터를 먼저 업로드 처리한다.
+				noticeFileUpload(noticeFileList, noticeVO.getBoNo(), req);
+				// 2) 기존 추가되었던 파일들 중, 삭제를 원하는 파일 번호들을 가져온다.
+				Integer[] delNoticeNo = noticeVO.getDelNoticeNo();
+				if(delNoticeNo != null) {
+					// 3) 삭제를 원하는 파일 번호들 하나하나씩을 데이터베이스로 던져서 파일 정보를 얻어 온 다음에
+					// 	   데이터베이스에서 데이터를 삭제하고 서버 업로드 경로에 업로드 되어있는 파일 데이터를 삭제한다.
+					for(int i=0; i<delNoticeNo.length; i++) {
+						NoticeFileVO noticeFileVO = noticeMapper.selectNoticeFile(delNoticeNo[i]);
+						noticeMapper.deleteNoticeFile(delNoticeNo[i]);
+						File file = new File(noticeFileVO.getFileSavepath());
+						file.delete();
+					}
+				}
+			} catch (IllegalStateException | IOException e) {
+				e.printStackTrace();
+			}
 			result = ServiceResult.OK;
 		} else {
 			result = ServiceResult.FAILED;
@@ -141,4 +168,53 @@ public class NoticeServiceImpl implements INoticeService {
 		return loginMapper.loginCheck(memberVO);
 	}
 
+	@Override
+	public String idForgetProcess(DDITMemberVO member) {
+		return loginMapper.idForgetProcess(member);
+	}
+
+	@Override
+	public String pwForgetProcess(DDITMemberVO member) {
+		return loginMapper.pwForgetProcess(member);
+	}
+
+	private void noticeFileUpload(List<NoticeFileVO> noticeFileList, int boNo, HttpServletRequest req) throws IllegalStateException, IOException {
+		String savePath = "/resources/notice/";
+		
+		if(noticeFileList != null && noticeFileList.size() > 0) {
+			for(NoticeFileVO noticeFileVO : noticeFileList) {
+				String saveName = UUID.randomUUID().toString();
+				
+				saveName += "_" + noticeFileVO.getFileName().replaceAll(" ", "_");
+				String endFileName = noticeFileVO.getFileName().split("\\.")[1];	// 확장자 (디버깅 및 확장자 추출 참고)
+				
+				// /resources/notice/1 이와 같이 저장 글 번호별로 파일들을 관리하기 위한 방법
+				String saveLocate = req.getServletContext().getRealPath(savePath + boNo);
+				File file = new File(saveLocate);
+				
+				if(!file.exists()) {
+					file.mkdirs();
+				}
+				
+				saveLocate += "/" + saveName;
+				File saveFile = new File(saveLocate);
+				
+				noticeFileVO.setBoNo(boNo);
+				noticeFileVO.setFileSavepath(saveLocate);
+				noticeMapper.insertNoticeFile(noticeFileVO);
+				
+				noticeFileVO.getItem().transferTo(saveFile);
+			}
+		}
+	}
+
+	@Override
+	public NoticeFileVO noticeDownload(int fileNo) {
+		NoticeFileVO noticeFileVO = noticeMapper.noticeDownload(fileNo);
+		if(noticeFileVO == null) {
+			throw new RuntimeException();
+		}
+		noticeMapper.incrementNoticeDowncount(fileNo);
+		return noticeFileVO;
+	}
 }
