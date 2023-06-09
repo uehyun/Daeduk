@@ -138,4 +138,9 @@
 		where file_no = #{fileNo}
 	</delete>
 	
+	<delete id="deleteNoticeFileByBoNo" parameterType="int">
+		delete from noticefile 
+		where bo_no = #{boNo}
+	</delete>
+	
 </mapper>

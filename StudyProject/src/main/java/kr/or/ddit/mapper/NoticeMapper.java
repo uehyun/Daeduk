@@ -20,5 +20,6 @@ public interface NoticeMapper {
 	public void incrementNoticeDowncount(int fileNo);
 	public NoticeFileVO selectNoticeFile(Integer integer);
 	public void deleteNoticeFile(Integer integer);
+	public void deleteNoticeFileByBoNo(int boNo);
 
 }

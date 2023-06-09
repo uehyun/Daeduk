@@ -15,6 +15,7 @@ import kr.or.ddit.ServiceResult;
 import kr.or.ddit.Controller.noticeboard.web.TelegramSendController;
 import kr.or.ddit.mapper.LoginMapper;
 import kr.or.ddit.mapper.NoticeMapper;
+import kr.or.ddit.mapper.ProfileMapper;
 import kr.or.ddit.vo.DDITMemberVO;
 import kr.or.ddit.vo.NoticeFileVO;
 import kr.or.ddit.vo.NoticeVO;
@@ -25,6 +26,9 @@ public class NoticeServiceImpl implements INoticeService {
 	
 	@Inject
 	private LoginMapper loginMapper;
+	
+	@Inject
+	private ProfileMapper profileMapper;
 	
 	@Inject
 	private NoticeMapper noticeMapper;
@@ -94,15 +98,50 @@ public class NoticeServiceImpl implements INoticeService {
 	}
 
 	@Override
-	public ServiceResult deleteNotice(int boNo) {
+	public ServiceResult deleteNotice(HttpServletRequest req, int boNo) {
 		ServiceResult result = null;
+		
+		// 아래에서 boNo에 해당하는 파일 데이터를 삭제할 때 사용할 객체(noticeVO)
+		NoticeVO noticeVO = noticeMapper.selectNotice(boNo);
+		// 본체인 notice를 삭제하기전에 File 데이터를 먼저 삭제하기 위한 요청
+		noticeMapper.deleteNoticeFileByBoNo(boNo);
 		int status = noticeMapper.deleteNotice(boNo);
 		if(status > 0) {
+			// 파일 데이터를 완벽하게 삭제처리
+			List<NoticeFileVO> noticeFileList = noticeVO.getNoticeFileList();
+			if(noticeFileList != null && noticeFileList.size() > 0) {
+				// D:\A_TeachingMaterial\workspaceLocalGit\.metadata\.plugins\org.eclipse.wst.server.core\tmp0\wtpwebapps\DevProject\resources\notice\25
+				// 4e54c135-3f6c-4be7-b1a0-2298a9a19889_chopa.jpg
+				// '/'를 기준으로 잘라진다.
+				String[] filePath = noticeFileList.get(0).getFileSavepath().split("/");
+				
+				// \resources\notice\{bo_no}/.... 형태를 알고 있기에 filePath[0]로 설정 가능
+				String path = filePath[0];
+				deleteFolder(req, path);
+			}
 			result = ServiceResult.OK;
 		} else {
 			result = ServiceResult.FAILED;
 		}
 		return result;
+	}
+	
+	public static void deleteFolder(HttpServletRequest req, String path) {
+		File folder = new File(path);
+		if(folder.exists()) {
+			File[] fileList = folder.listFiles();
+			
+			for(int i=0; i<fileList.length; i++) {
+				if(fileList[i].isFile()) {	// 폴더 안에 있는 파일이 파일 일때
+					// 폴더 안에 파일을 차례대로 삭제
+					fileList[i].delete();
+				} else {					// 폴더 안에 있는 파일이 폴더 일때 재귀함수 호출 (폴더안으로 들어갈라고)
+					deleteFolder(req, fileList[i].getPath());
+				}
+			}
+			// 폴더 삭제(boNo에 해당하는 폴더를 삭제)
+			folder.delete();
+		}
 	}
 
 	@Override
@@ -216,5 +255,46 @@ public class NoticeServiceImpl implements INoticeService {
 		}
 		noticeMapper.incrementNoticeDowncount(fileNo);
 		return noticeFileVO;
+	}
+
+	@Override
+	public DDITMemberVO selectMember(DDITMemberVO sessionMember) {
+		return profileMapper.selectMember(sessionMember);
+	}
+
+	@Override
+	public ServiceResult profileUpdate(HttpServletRequest req, DDITMemberVO memberVO) {
+		ServiceResult result = null;
+		// 사용자가 수정한 프로필 이미지 정보에 따라서 프로필 이미지 정보 값을 설정 후 memberVO에 셋팅해서 전달한다.
+		String uploadPath = req.getServletContext().getRealPath("/resources/profile");
+		File file = new File(uploadPath);
+		if(!file.exists()) {
+			file.mkdirs();
+		}
+		
+		String proFileImg = "";
+		MultipartFile proFileImgFile = memberVO.getImgFile();
+		if(proFileImgFile.getOriginalFilename() != null && !proFileImgFile.getOriginalFilename().equals("")) {
+			String fileName = UUID.randomUUID().toString();
+			fileName += "_" + proFileImgFile.getOriginalFilename();
+			uploadPath += "/" + fileName;
+			try {
+				proFileImgFile.transferTo(new File(uploadPath));
+			} catch (IllegalStateException | IOException e) {
+				e.printStackTrace();
+			}
+			proFileImg = "/resources/profile/" + fileName;
+		}
+		// 선택한 프로필 이미지가 존재하지 않으면 "" 공백이 넘어가고
+		// 프로필 이미지가 존재하면 업로드 경로와 파일명으로 구성된 경로가 넘어간다.
+		memberVO.setMemProfileImg(proFileImg);
+		
+		int status = profileMapper.profileUpdate(memberVO);
+		if(status > 0) {
+			result = ServiceResult.OK;
+		} else {
+			result = ServiceResult.FAILED;
+		}
+		return result;
 	}
 }

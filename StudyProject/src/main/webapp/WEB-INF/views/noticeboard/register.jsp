@@ -113,6 +113,7 @@ $(function(){
 			alert("이미지 파일을 선택해주세요.");
 		}
 	})
+	
 	idCheckBtn.on("click", function(){
 		var id = $("#memId").val();
 		
