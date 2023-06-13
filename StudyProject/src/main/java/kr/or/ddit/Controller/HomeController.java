@@ -1,4 +1,4 @@
-package kr.or.ddit;
+package kr.or.ddit.Controller;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
